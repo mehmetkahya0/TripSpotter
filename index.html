@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TripSpotter - Discover Amazing Places</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Caveat:wght@500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Floating Decorations -->
+    <div class="floating-decoration decoration-1"></div>
+    <div class="floating-decoration decoration-2"></div>
+    <div class="floating-decoration decoration-3"></div>
+
+    <!-- Header -->
+    <header class="header">
+        <div class="logo">
+            <i class="fas fa-plane-departure"></i>
+            <span class="logo-text">Where Should I Go?</span>
+        </div>
+        <nav class="nav">
+            <a href="#" class="nav-link active" data-section="explore">
+                <i class="fas fa-compass"></i>
+                <span>Explore</span>
+            </a>
+            <a href="#" class="nav-link" data-section="trips">
+                <i class="fas fa-suitcase-rolling"></i>
+                <span>My Trips</span>
+            </a>
+            <a href="#" class="nav-link" data-section="favorites">
+                <i class="fas fa-heart"></i>
+                <span>Favorites</span>
+            </a>
+        </nav>
+        <div class="header-actions">
+            <button class="btn-icon" id="themeToggle" title="Toggle Theme">
+                <i class="fas fa-moon"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <!-- Search Section -->
+            <div class="sidebar-section search-section">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInput" placeholder="Search destinations...">
+                </div>
+            </div>
+
+            <!-- Search Range -->
+            <div class="sidebar-section range-section">
+                <h3 class="section-title">
+                    <i class="fas fa-expand-arrows-alt"></i>
+                    Search Range
+                </h3>
+                <div class="range-control">
+                    <input type="range" id="searchRadius" min="500" max="5000" step="250" value="1000">
+                    <div class="range-labels">
+                        <span>500m</span>
+                        <span class="range-value" id="rangeValue">1 km</span>
+                        <span>5km</span>
+                    </div>
+                </div>
+                <p class="range-hint"><i class="fas fa-info-circle"></i> Click on map to search nearby places</p>
+            </div>
+
+            <!-- Categories -->
+            <div class="sidebar-section">
+                <h3 class="section-title">
+                    <i class="fas fa-layer-group"></i>
+                    Categories
+                </h3>
+                <div class="category-chips">
+                    <button class="chip active" data-category="all">
+                        <i class="fas fa-globe"></i> All
+                    </button>
+                    <button class="chip" data-category="restaurant">
+                        <i class="fas fa-utensils"></i> Restaurants
+                    </button>
+                    <button class="chip" data-category="hotel">
+                        <i class="fas fa-hotel"></i> Hotels
+                    </button>
+                    <button class="chip" data-category="attraction">
+                        <i class="fas fa-landmark"></i> Attractions
+                    </button>
+                    <button class="chip" data-category="nature">
+                        <i class="fas fa-tree"></i> Nature
+                    </button>
+                    <button class="chip" data-category="shopping">
+                        <i class="fas fa-shopping-bag"></i> Shopping
+                    </button>
+                </div>
+            </div>
+
+            <!-- Selected Location Details -->
+            <div class="sidebar-section location-details hidden" id="locationDetails">
+                <h3 class="section-title">
+                    <i class="fas fa-map-pin"></i>
+                    Selected Location
+                </h3>
+                <div class="location-card">
+                    <div class="location-image" id="locationImage">
+                        <div class="placeholder-image">
+                            <i class="fas fa-image"></i>
+                        </div>
+                    </div>
+                    <div class="location-info">
+                        <h4 id="locationName">Select a location</h4>
+                        <p class="location-address" id="locationAddress"></p>
+                        <div class="location-rating" id="locationRating">
+                            <i class="fas fa-star"></i>
+                            <span>4.5</span>
+                        </div>
+                    </div>
+                    <div class="location-actions">
+                        <button class="btn btn-primary" id="addToTripBtn">
+                            <i class="fas fa-plus"></i> Add to Trip
+                        </button>
+                        <button class="btn btn-secondary" id="favoriteBtn">
+                            <i class="far fa-heart"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Stats -->
+            <div class="sidebar-section stats-section">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-pie"></i>
+                    Your Stats
+                </h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="placesCount">0</span>
+                            <span class="stat-label">Places</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="tripsCount">0</span>
+                            <span class="stat-label">Trips</span>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="stat-info">
+                            <span class="stat-value" id="favoritesCount">0</span>
+                            <span class="stat-label">Favorites</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Map Container -->
+        <div class="map-container">
+            <div id="map"></div>
+            
+            <!-- Map Controls -->
+            <div class="map-controls">
+                <button class="map-control-btn" id="locateMe" title="My Location">
+                    <i class="fas fa-crosshairs"></i>
+                </button>
+                <button class="map-control-btn" id="zoomIn" title="Zoom In">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="map-control-btn" id="zoomOut" title="Zoom Out">
+                    <i class="fas fa-minus"></i>
+                </button>
+                <button class="map-control-btn" id="clearMarkers" title="Clear All Markers">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+
+            <!-- Map Legend -->
+            <div class="map-legend">
+                <div class="legend-item">
+                    <span class="legend-marker restaurant"></span>
+                    <span>Restaurant</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-marker hotel"></span>
+                    <span>Hotel</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-marker attraction"></span>
+                    <span>Attraction</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-marker nature"></span>
+                    <span>Nature</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-marker shopping"></span>
+                    <span>Shopping</span>
+                </div>
+            </div>
+
+            <!-- Floating Action Button -->
+            <button class="fab" id="addLocationFab" title="Add New Location">
+                <i class="fas fa-plus"></i>
+            </button>
+        </div>
+
+        <!-- Right Panel - Trips -->
+        <aside class="right-panel">
+            <div class="panel-header">
+                <h2>
+                    <i class="fas fa-suitcase"></i>
+                    My Trips
+                </h2>
+                <button class="btn btn-small btn-primary" id="createTripBtn">
+                    <i class="fas fa-plus"></i> New Trip
+                </button>
+            </div>
+
+            <!-- Trip List -->
+            <div class="trips-list" id="tripsList">
+                <!-- Sample Trip Card -->
+                <div class="trip-card" data-trip-id="1">
+                    <div class="trip-header">
+                        <div class="trip-icon">
+                            <i class="fas fa-umbrella-beach"></i>
+                        </div>
+                        <div class="trip-title">
+                            <h4>Summer Adventure</h4>
+                            <span class="trip-date">Dec 20 - Dec 30, 2025</span>
+                        </div>
+                        <button class="btn-icon trip-menu">
+                            <i class="fas fa-ellipsis-v"></i>
+                        </button>
+                    </div>
+                    <div class="trip-locations">
+                        <div class="trip-location-item">
+                            <span class="location-number">1</span>
+                            <span class="location-name">Eiffel Tower</span>
+                        </div>
+                        <div class="trip-location-item">
+                            <span class="location-number">2</span>
+                            <span class="location-name">Louvre Museum</span>
+                        </div>
+                    </div>
+                    <div class="trip-footer">
+                        <span class="trip-places">
+                            <i class="fas fa-map-pin"></i> 2 places
+                        </span>
+                        <button class="btn btn-text" data-action="view-trip">
+                            View Details <i class="fas fa-arrow-right"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div class="empty-state hidden" id="emptyTrips">
+                    <div class="empty-illustration">
+                        <i class="fas fa-compass"></i>
+                    </div>
+                    <h4>No trips yet</h4>
+                    <p>Start planning your next adventure!</p>
+                    <button class="btn btn-primary" id="createFirstTrip">
+                        <i class="fas fa-plus"></i> Create Trip
+                    </button>
+                </div>
+            </div>
+        </aside>
+    </main>
+
+    <!-- Modal: Add Location -->
+    <div class="modal" id="addLocationModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-map-marker-alt"></i> Add New Location</h3>
+                <button class="modal-close" id="closeAddLocation">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="addLocationForm">
+                    <div class="form-group">
+                        <label for="placeName">
+                            <i class="fas fa-tag"></i> Place Name
+                        </label>
+                        <input type="text" id="placeName" placeholder="e.g., Eiffel Tower" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="placeCategory">
+                            <i class="fas fa-layer-group"></i> Category
+                        </label>
+                        <select id="placeCategory" required>
+                            <option value="">Select category</option>
+                            <option value="restaurant">🍽️ Restaurant</option>
+                            <option value="hotel">🏨 Hotel</option>
+                            <option value="attraction">🏛️ Attraction</option>
+                            <option value="nature">🌲 Nature</option>
+                            <option value="shopping">🛍️ Shopping</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="placeDescription">
+                            <i class="fas fa-align-left"></i> Description
+                        </label>
+                        <textarea id="placeDescription" placeholder="Add notes about this place..." rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="placeRating">
+                            <i class="fas fa-star"></i> Rating
+                        </label>
+                        <div class="rating-input">
+                            <i class="fas fa-star" data-rating="1"></i>
+                            <i class="fas fa-star" data-rating="2"></i>
+                            <i class="fas fa-star" data-rating="3"></i>
+                            <i class="fas fa-star" data-rating="4"></i>
+                            <i class="fas fa-star" data-rating="5"></i>
+                        </div>
+                        <input type="hidden" id="placeRatingValue" value="0">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label><i class="fas fa-map"></i> Latitude</label>
+                            <input type="text" id="placeLat" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label><i class="fas fa-map"></i> Longitude</label>
+                            <input type="text" id="placeLng" readonly>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelAddLocation">Cancel</button>
+                <button class="btn btn-primary" id="saveLocation">
+                    <i class="fas fa-check"></i> Save Location
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Create Trip -->
+    <div class="modal" id="createTripModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-suitcase-rolling"></i> Create New Trip</h3>
+                <button class="modal-close" id="closeCreateTrip">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="createTripForm">
+                    <div class="form-group">
+                        <label for="tripName">
+                            <i class="fas fa-heading"></i> Trip Name
+                        </label>
+                        <input type="text" id="tripName" placeholder="e.g., Summer Adventure 2025" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="tripStartDate">
+                                <i class="fas fa-calendar"></i> Start Date
+                            </label>
+                            <input type="date" id="tripStartDate" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tripEndDate">
+                                <i class="fas fa-calendar-check"></i> End Date
+                            </label>
+                            <input type="date" id="tripEndDate" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="tripIcon">
+                            <i class="fas fa-icons"></i> Trip Icon
+                        </label>
+                        <div class="icon-picker">
+                            <button type="button" class="icon-option active" data-icon="fa-umbrella-beach">
+                                <i class="fas fa-umbrella-beach"></i>
+                            </button>
+                            <button type="button" class="icon-option" data-icon="fa-mountain">
+                                <i class="fas fa-mountain"></i>
+                            </button>
+                            <button type="button" class="icon-option" data-icon="fa-city">
+                                <i class="fas fa-city"></i>
+                            </button>
+                            <button type="button" class="icon-option" data-icon="fa-campground">
+                                <i class="fas fa-campground"></i>
+                            </button>
+                            <button type="button" class="icon-option" data-icon="fa-ship">
+                                <i class="fas fa-ship"></i>
+                            </button>
+                            <button type="button" class="icon-option" data-icon="fa-skiing">
+                                <i class="fas fa-skiing"></i>
+                            </button>
+                        </div>
+                        <input type="hidden" id="tripIconValue" value="fa-umbrella-beach">
+                    </div>
+                    <div class="form-group">
+                        <label for="tripNotes">
+                            <i class="fas fa-sticky-note"></i> Notes
+                        </label>
+                        <textarea id="tripNotes" placeholder="Add any notes for your trip..." rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelCreateTrip">Cancel</button>
+                <button class="btn btn-primary" id="saveTrip">
+                    <i class="fas fa-check"></i> Create Trip
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add to Trip -->
+    <div class="modal" id="addToTripModal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content modal-small">
+            <div class="modal-header">
+                <h3><i class="fas fa-plus-circle"></i> Add to Trip</h3>
+                <button class="modal-close" id="closeAddToTrip">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Select a trip to add this location:</p>
+                <div class="trip-select-list" id="tripSelectList">
+                    <!-- Trip options will be added dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
