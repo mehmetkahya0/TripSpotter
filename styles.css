@@ -255,9 +255,9 @@ body {
 }
 
 .logo-text {
-    font-family: 'Caveat', cursive;
+    font-family: 'Inter', cursive;
     font-size: 1.75rem;
-    font-weight: 500;
+    font-weight: bolder;
     background: linear-gradient(135deg, var(--primary-500), var(--accent-coral));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
